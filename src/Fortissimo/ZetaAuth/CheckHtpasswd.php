@@ -18,7 +18,7 @@ namespace Fortissimo\ZetaAuth;
  * - The user object. This will be set even on failure so that you
  *   can use it for debugging/error messages.
  * - On failure, this will reroute to the route given in 
- * `routeToFailure` or to `@401` if no route is given.
+ * `routeFailuresTo` or to `@401` if no route is given.
  * - On failure this will set context value "${name}-error" to the library-generated 
  * error message.
  */
@@ -47,7 +47,7 @@ class CheckHtpasswd extends \Fortissimo\Command\Base {
     $credentials = new \ezcAuthenticationPasswordCredentials($user, $pass);
     $authentication = new \ezcAuthentication($credentials);
     $authentication->session = $session;
-    $authentication->addFilter( new \ezcAuthenticationHtpasswdFilter($pwfile));
+    $authentication->addFilter(new \ezcAuthenticationHtpasswdFilter($pwfile));
 
     if (!$authentication->run()) {
       $status = $authentication->getStatus();
@@ -61,6 +61,7 @@ class CheckHtpasswd extends \Fortissimo\Command\Base {
       throw new  \Fortissimo\ForwardRequest($routeTo, $this->context, TRUE);
     }
 
+    $this->context->log("Authenticated $user", "debug");
     return $user;
   }
 
