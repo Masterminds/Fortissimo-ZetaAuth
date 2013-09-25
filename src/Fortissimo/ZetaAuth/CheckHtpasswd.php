@@ -3,6 +3,24 @@ namespace Fortissimo\ZetaAuth;
 
 /**
  * ZetaCompoents authentication via Fortissimo.
+ *
+ * Presently, this supports htpasswd-based authentication with 
+ * session-backed storage.
+ *
+ * Params:
+ *
+ * - user (string): username
+ * - password (string): HASHED password. (See HashSHA1)
+ * - htpasswd (string): Full path to the htpasswd file.
+ * - routeFailuresTo (string): Where to send failed auth.
+ *
+ * Returns:
+ * - The user object. This will be set even on failure so that you
+ *   can use it for debugging/error messages.
+ * - On failure, this will reroute to the route given in 
+ * `routeToFailure` or to `@401` if no route is given.
+ * - On failure this will set context value "${name}-error" to the library-generated 
+ * error message.
  */
 class CheckHtpasswd extends \Fortissimo\Command\Base {
   public function expects() {
@@ -11,6 +29,7 @@ class CheckHtpasswd extends \Fortissimo\Command\Base {
       ->usesParam("user", "User name")
       ->usesParam("password", "Password")
       ->usesParam("htpasswd", "Full path to an htpasswd file.")
+      ->usesParam("routeFailuresTo", "Name of route to which failures will be routed.")
       ->andReturns("The user name.")
       ;
   }
@@ -23,6 +42,7 @@ class CheckHtpasswd extends \Fortissimo\Command\Base {
     $user = $this->param("user", $session->load());
     $pass = $this->param("password");
     $pwfile = $this->param("htpasswd");
+    $routeTo = $this->param("routeFailuresTo", "@401");
 
     $credentials = new \ezcAuthenticationPasswordCredentials($user, $pass);
     $authentication = new \ezcAuthentication($credentials);
@@ -34,7 +54,11 @@ class CheckHtpasswd extends \Fortissimo\Command\Base {
       $err = $this->mostRidiculousErrorHandlingInTheUniverse($status);
       $this->context->log($err, 'error');
 
-      throw new \Fortissimo\InterruptException("Failed auth.");
+      $this->context->add($this->name . "-error", $err);
+      $this->context->add($this->name, $user);
+
+      //throw new \Fortissimo\InterruptException("Failed auth.");
+      throw new  \Fortissimo\ForwardRequest($routeTo, $this->context, TRUE);
     }
 
     return $user;
