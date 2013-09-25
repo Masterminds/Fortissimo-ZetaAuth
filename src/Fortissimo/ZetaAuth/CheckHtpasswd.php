@@ -22,6 +22,7 @@ class CheckHtpasswd extends \Fortissimo\Command\Base {
 
     $user = $this->param("user", $session->load());
     $pass = $this->param("password");
+    $pwfile = $this->param("htpasswd");
 
     $credentials = new \ezcAuthenticationPasswordCredentials($user, $pass);
     $authentication = new \ezcAuthentication($credentials);
