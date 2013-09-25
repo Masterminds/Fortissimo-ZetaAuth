@@ -83,7 +83,7 @@ class CheckHtpasswd extends \Fortissimo\Command\Base {
       $buffer[] = sprintf($errors[$k][$v]);
     }
 
-    return implode('\n', $buffer);
+    return implode("\n", $buffer);
   }
 
 }
