@@ -1,6 +1,5 @@
 <?php
-
-namespace \Fortissimo\ZetaAuth;
+namespace Fortissimo\ZetaAuth;
 
 /**
  * Password hasher for compatibility with htpasswd.
