@@ -43,12 +43,12 @@ class CheckHtpasswd extends \Fortissimo\Command\Base {
   protected function mostRidiculousErrorHandlingInTheUniverse($status) {
     $errors =  array(
       'ezcAuthenticationHtpasswdFilter' => array(
-          ezcAuthenticationHtpasswdFilter::STATUS_USERNAME_INCORRECT => 'Incorrect username',
-          ezcAuthenticationHtpasswdFilter::STATUS_PASSWORD_INCORRECT => 'Incorrect password'
+          \ezcAuthenticationHtpasswdFilter::STATUS_USERNAME_INCORRECT => 'Incorrect username',
+          \ezcAuthenticationHtpasswdFilter::STATUS_PASSWORD_INCORRECT => 'Incorrect password'
           ),
       'ezcAuthenticationSession' => array(
-          ezcAuthenticationSession::STATUS_EMPTY => '',
-          ezcAuthenticationSession::STATUS_EXPIRED => 'Session expired'
+          \ezcAuthenticationSession::STATUS_EMPTY => '',
+          \ezcAuthenticationSession::STATUS_EXPIRED => 'Session expired'
           )
         );
 
