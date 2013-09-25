@@ -30,15 +30,35 @@ class CheckHtpasswd extends \Fortissimo\Command\Base {
     $authentication->addFilter( new \ezcAuthenticationHtpasswdFilter($pwfile));
 
     if (!$authentication->run()) {
+      $status = $authentication->getStatus();
+      $err = $this->mostRidiculousErrorHandlingInTheUniverse($status);
+      $this->context->log($err, 'error');
 
-      foreach ($authentication->getStatus() as $status) {
-        list($e, $msg) = each($status);
-        $this->context->log($msg, "debug");
-      }
       throw new \Fortissimo\InterruptException("Failed auth.");
     }
 
     return $user;
+  }
+
+  protected function mostRidiculousErrorHandlingInTheUniverse($status) {
+    $errors =  array(
+      'ezcAuthenticationHtpasswdFilter' => array(
+          ezcAuthenticationHtpasswdFilter::STATUS_USERNAME_INCORRECT => 'Incorrect username',
+          ezcAuthenticationHtpasswdFilter::STATUS_PASSWORD_INCORRECT => 'Incorrect password'
+          ),
+      'ezcAuthenticationSession' => array(
+          ezcAuthenticationSession::STATUS_EMPTY => '',
+          ezcAuthenticationSession::STATUS_EXPIRED => 'Session expired'
+          )
+        );
+
+    $buffer = array();
+    foreach ($status as $line) {
+      list($k, $v) = each($line);
+      $buffer[] = sprintf("Error: %s\n", $errors[$k][$v]);
+    }
+
+    return implode(' ', $buffer);
   }
 
 }
