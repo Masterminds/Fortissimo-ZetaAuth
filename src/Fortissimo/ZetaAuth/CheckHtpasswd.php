@@ -80,10 +80,10 @@ class CheckHtpasswd extends \Fortissimo\Command\Base {
     $buffer = array();
     foreach ($status as $line) {
       list($k, $v) = each($line);
-      $buffer[] = sprintf("Error: %s\n", $errors[$k][$v]);
+      $buffer[] = sprintf($errors[$k][$v]);
     }
 
-    return implode(' ', $buffer);
+    return implode('\n', $buffer);
   }
 
 }
