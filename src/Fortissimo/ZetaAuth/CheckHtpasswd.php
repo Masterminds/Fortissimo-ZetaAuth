@@ -30,7 +30,11 @@ class CheckHtpasswd extends \Fortissimo\Command\Base {
     $authentication->addFilter( new \ezcAuthenticationHtpasswdFilter($pwfile));
 
     if (!$authentication->run()) {
-      throw new \Fortissimo\FatalException("Failed auth.");
+
+      foreach ($authentication->getStatus() as $status) {
+        $this->context->log($status, "debug");
+      }
+      throw new \Fortissimo\InterruptException("Failed auth.");
     }
 
     return $user;
