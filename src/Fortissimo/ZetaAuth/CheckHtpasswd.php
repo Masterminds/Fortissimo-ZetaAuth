@@ -32,7 +32,8 @@ class CheckHtpasswd extends \Fortissimo\Command\Base {
     if (!$authentication->run()) {
 
       foreach ($authentication->getStatus() as $status) {
-        $this->context->log($status, "debug");
+        list($e, $msg) = each($status);
+        $this->context->log($msg, "debug");
       }
       throw new \Fortissimo\InterruptException("Failed auth.");
     }
