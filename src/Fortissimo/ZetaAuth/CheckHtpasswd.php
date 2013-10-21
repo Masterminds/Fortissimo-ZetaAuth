@@ -30,20 +30,29 @@ class CheckHtpasswd extends \Fortissimo\Command\Base {
       ->usesParam("password", "Password")
       ->usesParam("htpasswd", "Full path to an htpasswd file.")
       ->usesParam("routeFailuresTo", "Name of route to which failures will be routed.")
+      ->usesParam("timeout", "Session duration (in seconds).")->withFilter('integer')->whichHasDefault(0)
       ->andReturns("The user name.")
       ;
   }
 
   public function doCommand() {
-
-    $session = new \ezcAuthenticationSession();
-    $session->start();
-
-    $user = $this->param("user", $session->load());
     $pass = $this->param("password");
     $pwfile = $this->param("htpasswd");
     $routeTo = $this->param("routeFailuresTo", "@401");
+    $timeout = (int)$this->param("timeout");
 
+    // Set up the session.
+    $sessOpts = new \ezcAuthenticationSessionOptions();
+    if ($timeout > 0) {
+      $sessOpts->validity = $timeout;
+    }
+    $session = new \ezcAuthenticationSession($sessOpts);
+    $session->start();
+
+    // Get the user. This has to wait until after session-start.
+    $user = $this->param("user", $session->load());
+
+    // Do authentication.
     $credentials = new \ezcAuthenticationPasswordCredentials($user, $pass);
     $authentication = new \ezcAuthentication($credentials);
     $authentication->session = $session;
@@ -68,12 +77,12 @@ class CheckHtpasswd extends \Fortissimo\Command\Base {
   protected function mostRidiculousErrorHandlingInTheUniverse($status) {
     $errors =  array(
       'ezcAuthenticationHtpasswdFilter' => array(
-          \ezcAuthenticationHtpasswdFilter::STATUS_USERNAME_INCORRECT => 'Incorrect username',
-          \ezcAuthenticationHtpasswdFilter::STATUS_PASSWORD_INCORRECT => 'Incorrect password'
+          \ezcAuthenticationHtpasswdFilter::STATUS_USERNAME_INCORRECT => 'Incorrect username.',
+          \ezcAuthenticationHtpasswdFilter::STATUS_PASSWORD_INCORRECT => 'Incorrect password.'
           ),
       'ezcAuthenticationSession' => array(
           \ezcAuthenticationSession::STATUS_EMPTY => '',
-          \ezcAuthenticationSession::STATUS_EXPIRED => 'Session expired'
+          \ezcAuthenticationSession::STATUS_EXPIRED => 'Session expired.'
           )
         );
 
