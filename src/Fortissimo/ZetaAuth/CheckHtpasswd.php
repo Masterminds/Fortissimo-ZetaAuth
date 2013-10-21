@@ -30,7 +30,7 @@ class CheckHtpasswd extends \Fortissimo\Command\Base {
       ->usesParam("password", "Password")
       ->usesParam("htpasswd", "Full path to an htpasswd file.")
       ->usesParam("routeFailuresTo", "Name of route to which failures will be routed.")
-      ->usesParam("timeout", "Session duration (in seconds).")->withFilter('integer')->whichHasDefault(0)
+      ->usesParam("timeout", "Session duration (in seconds).")->withFilter('int')->whichHasDefault(0)
       ->andReturns("The user name.")
       ;
   }
